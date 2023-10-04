@@ -11,7 +11,7 @@ public class GithubProperties {
     /**
      * Github API token ("user:sampleToken")
      */
-    @Pattern(regexp ="\\w+" )
+   // @Pattern(regexp ="\\w+:" )
     private String token;
 
     public String getToken() {
