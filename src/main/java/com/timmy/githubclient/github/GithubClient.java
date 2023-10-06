@@ -1,6 +1,7 @@
 package com.timmy.githubclient.github;
 
 import com.timmy.githubclient.GithubProperties;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -17,15 +18,17 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class GithubClient {
     private static final String EVENT_ISSUES_URL = "https://api.github.com/repos/{owner}/{repo}/issues/events";
     private final RestTemplate  restTemplate;
 
-    public GithubClient(RestTemplateBuilder builder, GithubProperties properties){
+    public GithubClient(RestTemplateBuilder builder, GithubProperties properties, MeterRegistry registry){
         this.restTemplate = builder
                 .additionalInterceptors(new GithubAppTokenInterceptor(properties.getToken()))
+                .additionalInterceptors(new MetricsInterceptor(registry))
                 .build();
     }
 
@@ -51,8 +54,20 @@ public class GithubClient {
             }
             return clientHttpRequestExecution.execute(httpRequest, bytes);
         }
+    }
 
+    public static class MetricsInterceptor implements ClientHttpRequestInterceptor {
+        private  final AtomicInteger gauge;
 
+        public MetricsInterceptor(MeterRegistry meterRegistry) {
+            this.gauge = meterRegistry.gauge("github-ratelimit-remaining", new AtomicInteger(0));
+        }
+        @Override
+        public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException{
+            ClientHttpResponse response = clientHttpRequestExecution.execute(httpRequest,bytes);
+            this.gauge.set(Integer.parseInt(response.getHeaders().getFirst("X-RateLimit-Remaining")));
+            return response;
+        }
     }
 
 
