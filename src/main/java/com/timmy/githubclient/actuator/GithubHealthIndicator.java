@@ -1,4 +1,4 @@
-package com.timmy.githubclient;
+package com.timmy.githubclient.actuator;
 
 import com.timmy.githubclient.github.GithubClient;
 import com.timmy.githubclient.github.RepositoryEvent;
