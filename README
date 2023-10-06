@@ -1,0 +1,26 @@
+###Sample Maven+Spring boot web project
+This project consumes github api and lets us see events on some repositories. We can find some implementation of interceptors for injecting token for github requests and github request limit metrics.
+
+application :
+runs on  :http://localhost:8080/
+actuators : http://localhost:8080/actuator
+healt actuators: http://localhost:8080/actuator/health
+our custom health indicator : http://localhost:8080/actuator/health/github
+metrics: http://localhost:8080/actuator/metrics
+our custom metric: http://localhost:8080/actuator/metrics/github-ratelimit-remaining
+
+templates:
+default page: http://localhost:8080/
+adming page: http://localhost:8080/admin  (user:admin, pass:admin)
+
+#### Properties
+
+- Maven build
+- Spring boot
+- H2 inmemory database
+- Actuator
+- Basic MVC implementation
+
+#### reference
+https://youtu.be/aA4tfBGY6jY?si=1MjXHxuYCMeVn-YM
+
